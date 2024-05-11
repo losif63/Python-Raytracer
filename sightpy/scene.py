@@ -9,6 +9,7 @@ from .ray import Ray, get_raycolor, get_distances
 from . import lights
 from .backgrounds.skybox import SkyBox
 from .backgrounds.panorama import Panorama
+from .geometry import Triangle, Triangle_Collider
 
 
 class Scene():
@@ -42,6 +43,33 @@ class Scene():
 
         if primitive.shadow == True:
             self.shadowed_collider_list += primitive.collider_list
+    
+    def add_mesh(self, file_name, center,  material, max_ray_depth,shadow = True, importance_sampled = False):
+        vs = []
+        fs = []
+        with open(file_name, 'r') as f:
+            r = f.read()
+            r = r.split('\n')
+            for i in r:
+                i = i.split()
+                if not i:
+                    continue
+                elif i[0] == 'v':
+                    x = float(i[1])
+                    y = float(i[2])
+                    z = float(i[3])
+                    vs.append(vec3(x, y, z))
+                elif i[0] == 'f':
+                    f1 = int(i[1].split('/')[0]) - 1
+                    f2 = int(i[2].split('/')[0]) - 1
+                    f3 = int(i[3].split('/')[0]) - 1
+                    fs.append([f1, f2, f3])
+        for i in fs:
+            p1 = vs[i[0]] + center
+            p2 = vs[i[1]] + center
+            p3 = vs[i[2]] + center
+            triangle = Triangle(center=center, material=material, p1=p1, p2=p2, p3=p3, max_ray_depth=max_ray_depth, shadow=shadow)
+            self.add(primitive=triangle, importance_sampled=importance_sampled)
             
         
     def add_Background(self, img, light_intensity = 0.0, blur =0.0 , spherical = False):
@@ -56,7 +84,7 @@ class Scene():
         self.collider_list += primitive.collider_list
 
         
-    def render(self, samples_per_pixel, progress_bar = False):
+    def render(self, samples_per_pixel, progress_bar = True):
 
         print ("Rendering...")
 

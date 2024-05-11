@@ -15,10 +15,10 @@ class Triangle(Primitive):
 
 
 class Triangle_Collider(Collider):
-    def __init__(self,assigned_surface, p1, p2, p3):
+    def __init__(self,assigned_primitive, p1, p2, p3, **kwargs):
 
 
-        self.assigned_primitive = assigned_surface
+        self.assigned_primitive = assigned_primitive
         self.p1 = p1
         self.p2 = p2
         self.p3 = p3
